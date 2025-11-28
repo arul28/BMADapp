@@ -1,0 +1,105 @@
+# Workflow Status
+
+# Tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# - required: Must be completed to progress
+# - optional: Can be completed but not required
+# - recommended: Strongly suggested but not required
+# - conditional: Required only if certain conditions met (e.g., if_has_ui)
+# Completion examples:
+# - {file-path}: File created/found (e.g., "docs/product-brief.md")
+# - skipped: Optional/conditional workflow that was skipped
+
+generated: "2025-11-28T22:08:11Z"
+project: "BMAD Mission Control"
+project_type: "desktop app and vscode extension"
+selected_track: "method"
+field_type: "brownfield"
+workflow_path: ".bmad/bmm/workflows/workflow-status/paths/method-brownfield.yaml"
+workflow_status:
+  - phase: "Documentation"
+    conditional: "if_undocumented"
+    workflows:
+      - id: "document-project"
+        status: "devDocs/docScan/index.md"
+        agent: "analyst"
+        command: "document-project"
+        output: "Comprehensive project documentation"
+        purpose: "Understand existing codebase before planning"
+
+  - phase: "Discovery"
+    optional: true
+    note: "User-selected during workflow-init"
+    workflows:
+      - id: "brainstorm-project"
+        status: "skipped"
+        agent: "analyst"
+        command: "brainstorm-project"
+      - id: "research"
+        status: "skipped"
+        agent: "analyst"
+        command: "research"
+      - id: "product-brief"
+        status: "skipped"
+        agent: "analyst"
+        command: "product-brief"
+
+  - phase: "Planning"
+    workflows:
+      - id: "prd"
+        status: "devDocs/prd.md"
+        agent: "pm"
+        command: "prd"
+        output: "PRD focused on new features/changes"
+        note: "Include Electron desktop + VS Code extension scope"
+      - id: "validate-prd"
+        status: "devDocs/validation-report-20251128-194434.md"
+        agent: "pm"
+        command: "validate-prd"
+      - id: "create-design"
+        status: "skipped"
+        agent: "ux-designer"
+        command: "create-design"
+        condition: "has_ui"
+        note: "UI already built in apps/v0; adapt for Electron + VS Code surfaces"
+
+  - phase: "Solutioning"
+    workflows:
+      - id: "create-architecture"
+        status: "devDocs/architecture.md"
+        agent: "architect"
+        command: "create-architecture"
+        output: "Integration architecture for desktop app + VS Code extension"
+      - id: "create-epics-and-stories"
+        status: "devDocs/epics.md"
+        agent: "pm"
+        command: "create-epics-and-stories"
+        note: "Break down PRD and UI into implementable work; epics include multi-repo MVP and parallel-safe story flags"
+      - id: "test-design"
+        status: "devDocs/test-design-system.md"
+        agent: "tea"
+        command: "test-design"
+      - id: "validate-architecture"
+        status: "devDocs/validation-report-20251128-170117.md"
+        agent: "architect"
+        command: "validate-architecture"
+      - id: "implementation-readiness"
+        status: "devDocs/implementation-readiness-report-2025-11-28.md"
+        agent: "architect"
+        command: "implementation-readiness"
+
+  - phase: "Implementation"
+    workflows:
+      - id: "sprint-planning"
+        status: "devDocs/sprint-artifacts/sprint-status.yaml"
+        agent: "sm"
+        command: "sprint-planning"
+        note: "Create sprint plan with stories"
+
+user_description: |
+  Building Mission Control UI for BMAD Method: take the existing Next.js app in apps/v0 and ship an Electron desktop app that matches it (progress tracking, in-app terminal, BYOK chat, copy/paste prompts). Also build a VS Code extension with the same UI and features minus the built-in terminal/BYOK chat, instead leveraging Copilot-backed chat and copy/paste commands.
+brainstorm_requested: false
+research_requested: false
+product_brief_requested: false

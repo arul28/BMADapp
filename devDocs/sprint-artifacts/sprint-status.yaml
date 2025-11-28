@@ -1,0 +1,79 @@
+# generated: 2025-11-28 18:15:41 EST
+# project: Mission Control
+# project_key: MissionControl
+# tracking_system: file-system
+# story_location: /Users/arul/BMADapp/devDocs/sprint-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: 2025-11-28 18:15:41 EST
+project: Mission Control
+project_key: MissionControl
+tracking_system: file-system
+story_location: /Users/arul/BMADapp/devDocs/sprint-artifacts
+
+development_status:
+  epic-1: backlog
+  1-1-repo-selection-validation-and-persistence: backlog
+  1-2-multi-repo-switcher-with-recent-history: backlog
+  1-3-live-workflow-status-ingest-board-rendering-and-agent-roster: backlog
+  1-4-command-and-prompt-copy-edit: backlog
+  1-5-docs-surfacing-and-health-checks: backlog
+  1-6-offline-read-only-mode-base: backlog
+  1-7-auto-update-visibility-and-restart-apply: backlog
+  1-8-action-logging-local-pii-safe: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-vs-code-webview-host-using-shared-bundle: backlog
+  2-2-workspace-scoped-repo-selection-and-validation: backlog
+  2-3-status-doc-reading-via-vs-code-fs-apis: backlog
+  2-4-command-and-prompt-copy-edit-extension: backlog
+  2-5-offline-and-permissions-handling-in-extension: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-embedded-terminal-desktop-with-offline-permission-guards: backlog
+  3-2-byok-chat-with-workflow-context-desktop: backlog
+  3-3-offline-cache-of-status-docs-with-staleness-indicators: backlog
+  3-4-file-change-notifications-prompting-refresh: backlog
+  3-5-multi-repo-ux-polish-bulk-remove-validation-hardening-stale-entry-cleanup: backlog
+  3-6-terminal-ux-refinements-buffer-mgmt-permission-recovery-flows: backlog
+  3-7-byok-ux-polish-secret-entry-ux-redaction-verification: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-custom-chat-overlay-ui-within-vs-code-webview-copilot-backend: backlog
+  4-2-context-sharing-into-overlay-from-workflow-cards-status: backlog
+  4-3-inline-command-suggestions-piped-to-overlay-copy-only: backlog
+  4-4-reliability-and-staleness-signaling-within-overlay: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-automation-guardrails-and-confirmation-flows: backlog
+  5-2-cross-repo-aggregation-view-scaffolding: backlog
+  5-3-analytics-counters-non-pii-no-time-estimates: backlog
+  epic-5-retrospective: optional
