@@ -1,6 +1,6 @@
 # Story 1.1: Repo selection, validation, and persistence
 
-Status: drafted
+Status: ready-for-dev
 
 ## Story
 
@@ -47,6 +47,7 @@ so that the desktop app always opens in the correct context with trustworthy dat
 - Repository-store should persist active/recent repos in app data, revalidate on launch, and guard reliability target (≥99% success for select/refresh/copy) by surfacing clear health errors. [Source: devDocs/prd.md; devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md]
 - Data scope remains local: read devDocs artifacts only; no remote calls except future update feed; sanitize paths and enforce repo allowlist in preload. [Source: devDocs/architecture.md]
 - Performance sensitivity: status ingest/render expected p50<2s for ≤50 workflows—keep validation/reads off main thread and avoid blocking UI. [Source: devDocs/prd.md]
+- Base Electron shell not yet implemented—add apps/desktop with main + preload + builder config and wrap the shared apps/v0 Next.js bundle under contextIsolation on/nodeIntegration off. [Source: devDocs/architecture.md; devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md]
 
 ### Project Structure Notes
 
@@ -69,7 +70,7 @@ so that the desktop app always opens in the correct context with trustworthy dat
 
 ### Context Reference
 
-<!-- Path(s) to story context XML will be added here by context workflow -->
+- devDocs/sprint-artifacts/stories/1.1/1-1-repo-selection-validation-and-persistence.context.xml
 
 ### Agent Model Used
 

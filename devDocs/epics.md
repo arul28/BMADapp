@@ -100,6 +100,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
       - Given a healthy repo, When status exists, Then phases/workflows render with status, agent, output path, last-updated, stale badge >5m.
       - Given missing/stale file, When loading, Then I see an actionable error/staleness warning.
       - Agent roster displays role/owner per workflow.
+      - Solutioning includes TEA cards for "Test Framework Setup" (`bmad framework`, id `solutioning-framework`) and "CI/CD Pipeline Setup" (`bmad ci`, id `solutioning-ci`) with valid status icons, editable commands that persist across modes, and ordering after architecture validation before implementation readiness.
       - Given the Electron shell reuses the apps/v0 Next.js bundle, When ingesting/rendering board data, Then shared UI components are used unchanged with Electron-specific wiring only.
     - Prerequisites: Story 1.1 (repo context); independent of Story 1.2 if using active repo abstraction.
     - Technical notes: YAML parse off main thread; staleness calc; file existence check; no mock data.

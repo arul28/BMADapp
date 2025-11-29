@@ -10,7 +10,7 @@ export type RetroStatus = "optional" | "completed"
 
 export type TechContextStatus = "not-started" | "context-done" | "validated"
 
-export type AgentType = "analyst" | "pm" | "architect" | "sm" | "dev" | "po" | "design-architect"
+export type AgentType = "analyst" | "pm" | "architect" | "sm" | "dev" | "po" | "design-architect" | "tea" // Added "tea" agent
 export type StepStatus = "not-started" | "in-progress" | "review" | "done" | "skipped"
 
 export type ResearchType = "market" | "competitive" | "user" | "technical" | "domain" | "deep-prompt"
@@ -417,6 +417,7 @@ export const AGENTS: Record<AgentType, { label: string; icon: string }> = {
   dev: { label: "Developer", icon: "Code" },
   po: { label: "Product Owner", icon: "Target" },
   "design-architect": { label: "Design Architect", icon: "Palette" },
+  tea: { label: "TEA", icon: "Cog" }, // Added TEA agent
 }
 
 export function getStepStatusColor(status: StepStatus): string {
@@ -626,6 +627,40 @@ export const SOLUTIONING_WORKFLOWS: PhaseWorkflow[] = [
     outputPath: "devDocs/validation-report-architecture.md",
     command: "bmad validate-architecture",
     instructionsPath: ".bmad/core/workflows/validate-architecture/workflow.yaml",
+  },
+  {
+    id: "sol-framework",
+    workflowId: "framework",
+    title: "Test Framework Setup",
+    description: "Initialize production-ready test framework with TEA agent. Sets up testing infrastructure.",
+    phase: "solutioning",
+    status: "pending",
+    agent: "tea",
+    inputs: [
+      { label: "Architecture", path: "devDocs/architecture.md", required: true, exists: true },
+      { label: "PRD", path: "devDocs/prd.md", required: true, exists: true },
+    ],
+    outputPattern: "{output_folder}/test-framework-setup.md",
+    outputPath: "devDocs/test-framework-setup.md",
+    command: "bmad framework",
+    instructionsPath: ".bmad/core/workflows/framework/workflow.yaml",
+  },
+  {
+    id: "sol-ci",
+    workflowId: "ci",
+    title: "CI/CD Pipeline Setup",
+    description: "Scaffold CI/CD quality pipeline with TEA agent. Configures automated testing and deployment.",
+    phase: "solutioning",
+    status: "pending",
+    agent: "tea",
+    inputs: [
+      { label: "Architecture", path: "devDocs/architecture.md", required: true, exists: true },
+      { label: "Test Framework", path: "devDocs/test-framework-setup.md", required: false, exists: false },
+    ],
+    outputPattern: "{output_folder}/ci-cd-pipeline.md",
+    outputPath: "devDocs/ci-cd-pipeline.md",
+    command: "bmad ci",
+    instructionsPath: ".bmad/core/workflows/ci/workflow.yaml",
   },
   {
     id: "sol-implementation-readiness",

@@ -1,0 +1,101 @@
+<story-context id="{bmad_folder}/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.1</storyId>
+    <title>Story 1.1: Repo selection, validation, and persistence</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-29</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>devDocs/sprint-artifacts/stories/1.1/1-1-repo-selection-validation-and-persistence.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>BMAD Mission Control user</asA>
+    <iWant>select and persist a valid BMAD repo with health checks</iWant>
+    <soThat>the desktop app always opens in the correct context with trustworthy data</soThat>
+    <tasks>
+      <task id="T1" status="todo" ac="AC1">
+        <summary>Implement repo selection and validation flow by wiring repo picker to repository-store and validating required BMAD artifacts before persisting the active repo.</summary>
+        <subtask id="T1.1" status="todo" ac="AC1">Persist selected repo path and timestamp to app data/recent list after successful validation.</subtask>
+        <subtask id="T1.2" status="todo" ac="AC1">Surface blocking health error when validation fails; do not persist invalid repos.</subtask>
+      </task>
+      <task id="T2" status="todo" ac="AC2">On app launch, restore saved repo and re-run validation; if artifacts are missing or invalid, show a blocking health error and clear the active repo.</task>
+      <task id="T3" status="todo" ac="AC3">Ensure Electron host wiring reuses the shared apps/v0 bundle with host-only adaptations (contextIsolation on, nodeIntegration off, preload allowlist) and avoids renderer/UI forks.</task>
+      <task id="T4" status="todo" ac="AC1 AC2">Repository-store unit tests for select/persist/restore and validation gating across pass/fail paths.</task>
+      <task id="T5" status="todo" ac="AC1 AC2">Integration tests for repo select → validate → persist → restore with blocking error cases to enforce gating and persistence rules.</task>
+      <task id="T6" status="todo" ac="AC3">Tests for Electron host wiring/config (contextIsolation, nodeIntegration off, preload allowlist) and renderer reuse of shared bundle.</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <item id="AC1">When no repo is selected and the user chooses a folder, the app validates required BMAD artifacts (e.g., devDocs/bmm-workflow-status.yaml, docScan outputs, epics/prd/architecture) and persists the path as the active repo.</item>
+    <item id="AC2">When the app relaunches with a saved repo, it restores that repo automatically and revalidates health before rendering; invalid or missing artifacts surface a blocking health error without setting the repo active.</item>
+    <item id="AC3">Repo selection and health wiring reuse the shared apps/v0 Next.js bundle logic, with only Electron host adaptations (contextIsolation on, nodeIntegration off, preload allowlist) and no UI forks.</item>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="devDocs/prd.md" title="Mission Control PRD" section="Functional Requirements (FR-001, FR-002, FR-006, FR-007)" snippet="Requires repo selection with validation of BMAD artifacts, blocking errors for missing files, and reliability &lt;99% success for repo select/status refresh/command copy; status read/render target &lt;2s for ≤50 workflows." />
+      <doc path="devDocs/architecture.md" title="Architecture" section="System Integration & Architecture Decision Summary" snippet="Electron shell must keep contextIsolation on, nodeIntegration off, and use a preload bridge for repo-scoped file reads and command copy with a repo allowlist; data access is local-only to devDocs artifacts." />
+      <doc path="devDocs/epics.md" title="Epic 1: Electron MVP" section="Story 1.1 definition" snippet="Story 1.1 anchors repo selection/validation/persistence with multi-repo history and health gating, ensuring shared apps/v0 bundle reuse without UI forks." />
+      <doc path="devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md" title="Epic 1 Technical Spec" section="Services and Modules; Acceptance Criteria" snippet="Repository store manages active/recent repos and health flags; Electron 33 shell with preload repo allowlist, offline-aware behavior, and auto-update surface; acceptance criteria stress staleness badges and blocking invalid repos." />
+      <doc path="devDocs/docScan/architecture.md" title="docScan Architecture" section="Data &amp; State Flows" snippet="Repository registry in apps/v0/lib/repository-store.ts tracks active repo and BMAD install flags; UI reads devDocs/bmm-workflow-status.yaml to render progress and guides next actions." />
+      <doc path="devDocs/docScan/development-guide.md" title="Development Guide" section="Prerequisites &amp; Commands" snippet="Node 20+ root with npm, pnpm for apps/v0; commands for install and build; Electron wrap of apps/v0 with repo-scoped FS reads and BYOK/terminal notes." />
+    </docs>
+    <code>
+      <artifact path="apps/v0/lib/repository-store.ts#L4-L132" kind="store" symbol="BmadRepository, getRepositories, setActiveRepositoryId, checkBmadInstalled" lines="4-132" reason="Current repo registry uses localStorage and mock BMAD checks; needs replacement with Electron/VSC-safe persistence, health validation, and repo allowlist per AC1-AC3." />
+      <artifact path="apps/v0/app/page.tsx#L21-L210" kind="component" symbol="MissionControl repository wiring" lines="21-210" reason="Main page adds/selects repositories and toasts success using repository-store without real validation or health gating; hook for integrating preload validation and revalidation on launch (AC1/AC2)." />
+      <artifact path="apps/v0/components/bmad/repository-picker.tsx#L25-L165" kind="component" symbol="RepositoryPicker" lines="25-165" reason="UI for selecting/adding/removing repos; currently mocks folder browse and shows initialization badge—needs real filesystem picker, validation, and health error surfaces (AC1/AC3)." />
+    </code>
+    <dependencies>
+      <ecosystem name="root (CLI/tooling)">
+        <package name="js-yaml" version="^4.1.0" />
+        <package name="yaml" version="^2.7.0" />
+        <package name="fs-extra" version="^11.3.0" />
+        <package name="commander" version="^14.0.0" />
+        <package name="semver" version="^7.6.3" />
+      </ecosystem>
+      <ecosystem name="apps/v0 (Next.js UI)">
+        <package name="next" version="16.0.3" />
+        <package name="react" version="19.2.0" />
+        <package name="react-dom" version="19.2.0" />
+        <package name="zod" version="3.25.76" />
+        <package name="@radix-ui/*" version="1.x" />
+        <package name="tailwindcss" version="4.1.9" />
+        <package name="react-hook-form" version="^7.60.0" />
+        <package name="recharts" version="2.15.4" />
+      </ecosystem>
+      <ecosystem name="desktop (planned)">
+        <package name="electron" version="33.x (planned)" />
+        <package name="electron-builder" version="24.x (planned)" />
+        <package name="node-pty" version="1.0.x (planned)" />
+        <package name="xterm" version="5.x (planned)" />
+        <package name="electron-store" version="9.x (planned)" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <item>Enforce repo allowlist and path sanitization in preload/VS Code FS layers; renderer must stay sandboxed (contextIsolation on, nodeIntegration off).</item>
+    <item>Read data only from selected repo’s devDocs artifacts; block activation when devDocs/bmm-workflow-status.yaml or required docScan/PRD/architecture/epics files are missing.</item>
+    <item>Restore repo on launch and revalidate before rendering; surface blocking health state and avoid persisting invalid repos.</item>
+    <item>Reuse shared apps/v0 bundle without forks; Electron host adaptations only via preload bridge and app data persistence.</item>
+    <item>Reliability target: repo select/refresh/copy flows sustain ≥99% success; validation gating and error handling must preserve this target.</item>
+    <item>Performance target: status/doc health checks and load must keep UI responsive and align with PRD p50&lt;2s for ≤50 workflows.</item>
+    <item>Base Electron shell is not built yet—add apps/desktop with main/preload, builder config, and wrap the apps/v0 Next.js bundle under contextIsolation on/nodeIntegration off.</item>
+  </constraints>
+  <interfaces>
+    <interface name="repository-store (current)" kind="client-store" signature="getRepositories(): BmadRepository[]; setActiveRepositoryId(id: string|null): void; checkBmadInstalled(path): {installed, initialized}" path="apps/v0/lib/repository-store.ts#L61-L132" />
+    <interface name="repo picker props" kind="component-props" signature="{repositories, activeRepository, onSelectRepository, onAddRepository, onRemoveRepository}" path="apps/v0/components/bmad/repository-picker.tsx#L25-L39" />
+    <interface name="planned preload IPC" kind="ipc" signature="bmad:repo-health, bmad:read-status, bmad:read-doc (repo-scoped, allowlisted)" path="devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md" />
+  </interfaces>
+  <tests>
+    <standards>Root uses Jest + c8 (package.json scripts) with lint/format gates; story-specific tests should add deterministic repo-health and persistence coverage without network calls.</standards>
+    <locations>Existing root tests in test/; add story-focused unit/integration tests under apps/v0 (e.g., lib/__tests__, components/__tests__).</locations>
+    <ideas>
+      <idea ac="AC1">Unit test repository-store replacement to persist and load repos with validation failures blocking persistence; include allowlist path sanitization.</idea>
+      <idea ac="AC2">Integration test app launch with saved repo → preload validation mocked: healthy repo restores, unhealthy repo blocks and clears active selection.</idea>
+      <idea ac="AC3">Component test for repository-picker wiring to ensure Electron host adaptations: contextIsolation/nodeIntegration flags exposed via preload mock and no renderer forks.</idea>
+    </ideas>
+  </tests>
+</story-context>

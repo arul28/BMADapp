@@ -23,6 +23,7 @@ In scope
 - Docs surfacing for PRD, architecture, epics/docScan outputs with existence checks and actionable empty states.
 - Auto-update visibility (current vs available) with defer/apply flow; offline shows last-known version.
 - Base offline/read-only mode gating for actions that require writes/CLI; local action logging without PII.
+- Solutioning sequence now includes TEA-led Test Framework Setup (`bmad framework`) and CI/CD Pipeline Setup (`bmad ci`) between architecture validation and implementation readiness; covered under Story 1.3 acceptance (cards visible with valid status keys and persistent commands).
 
 Out of scope
 - Embedded terminal execution and run-in-app flows (Epic 3).
