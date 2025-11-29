@@ -37,6 +37,7 @@ so that the desktop app always opens in the correct context with trustworthy dat
 - [ ] On app launch, restore saved repo and re-run validation; if artifacts missing/invalid, show health error and clear active repo to force reselection. (AC2) [Source: devDocs/epics.md; devDocs/prd.md]
 - [ ] Ensure Electron host wiring reuses shared apps/v0 bundle with host-only adaptations: contextIsolation on, nodeIntegration off, preload bridge enforcing repo allowlist for FS reads. Avoid renderer/UI forks. (AC3) [Source: devDocs/architecture.md; devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md]
 - [ ] Tests: repository-store unit tests for select/persist/restore and validation gating (pass/fail paths). (AC1, AC2)
+- [ ] Tests: integration path for repo select → validate → persist → restore with blocking error cases to ensure gating and persistence rules hold. (AC1, AC2)
 - [ ] Tests: Electron host wiring/config checks (contextIsolation, nodeIntegration off, preload allowlist) and renderer reuse of shared bundle. (AC3)
 
 ## Dev Notes
@@ -55,10 +56,10 @@ so that the desktop app always opens in the correct context with trustworthy dat
 
 ### References
 
-- devDocs/epics.md
-- devDocs/prd.md
-- devDocs/architecture.md
-- devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md
+- devDocs/epics.md — Epic 1: Electron MVP (Story 1.1 BDD) [§ Epic 1]
+- devDocs/prd.md — Workspace & Data requirements; Success Criteria [§ Product Scope, § Success Criteria]
+- devDocs/architecture.md — System Architecture Alignment; Project Structure & repo allowlist [§ System Architecture Alignment, § Project Structure]
+- devDocs/sprint-artifacts/epic_tech_spec/tech-spec-epic-1.md — Services/Modules; APIs and Interfaces [§ Services and Modules, § APIs and Interfaces]
 
 ## Change Log
 
