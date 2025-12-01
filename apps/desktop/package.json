@@ -1,0 +1,28 @@
+{
+  "name": "@bmad/desktop",
+  "version": "0.1.0",
+  "description": "Electron host for BMAD Mission Control (shared apps/ui bundle)",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "package": "electron-builder",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "33.2.0",
+    "electron-store": "9.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "org.bmad.missioncontrol",
+    "productName": "BMAD Mission Control",
+    "files": [
+      "**/*"
+    ],
+    "directories": {
+      "buildResources": "build"
+    }
+  }
+}

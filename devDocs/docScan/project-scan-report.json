@@ -31,7 +31,7 @@
       "step": "step_4",
       "status": "completed",
       "timestamp": "2025-11-28T05:12:06Z",
-      "summary": "Recorded deep-scan focus: src/modules/bmm (full), apps/v0 (Next.js UI), exclude .bmad/devDocs"
+      "summary": "Recorded deep-scan focus: src/modules/bmm (full), apps/ui (Next.js UI), exclude .bmad/devDocs"
     },
     {
       "step": "step_5",
@@ -108,20 +108,13 @@
     "technology_stack": {
       "core": {
         "language": "Node.js/JS",
-        "frameworks": [
-          "CLI tooling",
-          "monorepo scripts"
-        ],
+        "frameworks": ["CLI tooling", "monorepo scripts"],
         "notes": "BMAD CLI/tooling; focus src/modules/bmm and related packages"
       },
       "mission-control-ui": {
         "language": "TypeScript/React",
-        "frameworks": [
-          "Next.js 16",
-          "Radix UI",
-          "Tailwind"
-        ],
-        "notes": "apps/v0 Next.js UI for Mission Control"
+        "frameworks": ["Next.js 16", "Radix UI", "Tailwind"],
+        "notes": "apps/ui Next.js UI for Mission Control"
       }
     },
     "architecture_patterns": {
@@ -129,14 +122,8 @@
       "mission-control-ui": "Next.js app-router UI for Mission Control (desktop/VS Code surfaces)"
     },
     "deep_scan_plan": {
-      "include": [
-        "src/modules/bmm/**",
-        "apps/v0/**"
-      ],
-      "exclude": [
-        ".bmad/**",
-        "devDocs/**"
-      ],
+      "include": ["src/modules/bmm/**", "apps/ui/**"],
+      "exclude": [".bmad/**", "devDocs/**"],
       "notes": "Prioritize bmm docs + workflows, mission-control UI; treat bmm as core CLI/agents context"
     },
     "outputs_generated": []

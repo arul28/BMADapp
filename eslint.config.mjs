@@ -8,6 +8,8 @@ export default [
   // Global ignores for files/folders that should not be linted
   {
     ignores: [
+      'apps/ui/.next/**',
+      'apps/ui/out/**',
       'dist/**',
       'coverage/**',
       '**/*.min.js',
@@ -92,6 +94,19 @@ export default [
       'no-useless-catch': 'off',
       'unicorn/prefer-number-properties': 'off',
       'no-unreachable': 'off',
+    },
+  },
+
+  // Electron desktop app uses CommonJS entry points
+  {
+    files: ['apps/desktop/**/*.js'],
+    rules: {
+      'unicorn/prefer-module': 'off',
+      'unicorn/import-style': 'off',
+      'unicorn/prefer-top-level-await': 'off',
+      'unicorn/no-await-expression-member': 'off',
+      'n/no-missing-require': 'off',
+      'n/no-unpublished-require': 'off',
     },
   },
 

@@ -24,7 +24,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
 
 - PRD: devDocs/prd.md (loaded)
 - Architecture: devDocs/architecture.md (loaded)
-- UX: none provided (reusing existing apps/v0 UI; no UX brief file found)
+- UX: none provided (reusing existing apps/ui UI; no UX brief file found)
 - Product brief: none
 - Domain brief: none
 
@@ -75,8 +75,9 @@ This living document decomposes the PRD into epics and stories for Mission Contr
 ## Epics
 
 ### Epic 1: Electron MVP — Live Data, UI Tracking, Command/Prompt Copy & Edit, Auto-Update
+
 - Goal: Ship a repo-aware desktop shell that renders live BMAD workflow/status data (no mocks), surfaces agent/board tracking, delivers command/prompt copy+edit, auto-update, and multi-repo selection with recent history. Terminal and BYOK are explicitly deferred.
-- Integration note: Port the existing apps/v0 Next.js web app bundle into the Electron shell; reuse the shared bundle and avoid UI forks.
+- Integration note: Port the existing apps/ui Next.js web app bundle into the Electron shell; reuse the shared bundle and avoid UI forks.
 - FR coverage: FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-013, FR-014, FR-022, FR-023, FR-024, FR-025, FR-028 (multi-repo switcher pulled into MVP)
 - Stories:
   - Story 1.1: Repo selection, validation, and persistence (sequential anchor)
@@ -84,7 +85,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
     - Acceptance (BDD):
       - Given no repo selected, When I pick a folder, Then the app validates BMAD artifacts and saves the path.
       - Given a saved repo, When I relaunch, Then the app restores the selection and revalidates health.
-      - Given the desktop shell reuses the apps/v0 Next.js bundle, When repo selection/health is wired, Then it uses shared UI logic with only Electron host adaptations (no UI forks).
+      - Given the desktop shell reuses the apps/ui Next.js bundle, When repo selection/health is wired, Then it uses shared UI logic with only Electron host adaptations (no UI forks).
     - Prerequisites: none
     - Technical notes: align with `.nvmrc` (Node 22); store in app data; guard against missing devDocs; repo allowlist.
   - Story 1.2: Multi-repo switcher with recent history (parallel-safe)
@@ -101,7 +102,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
       - Given missing/stale file, When loading, Then I see an actionable error/staleness warning.
       - Agent roster displays role/owner per workflow.
       - Solutioning includes TEA cards for "Test Framework Setup" (`bmad framework`, id `solutioning-framework`) and "CI/CD Pipeline Setup" (`bmad ci`, id `solutioning-ci`) with valid status icons, editable commands that persist across modes, and ordering after architecture validation before implementation readiness.
-      - Given the Electron shell reuses the apps/v0 Next.js bundle, When ingesting/rendering board data, Then shared UI components are used unchanged with Electron-specific wiring only.
+      - Given the Electron shell reuses the apps/ui Next.js bundle, When ingesting/rendering board data, Then shared UI components are used unchanged with Electron-specific wiring only.
     - Prerequisites: Story 1.1 (repo context); independent of Story 1.2 if using active repo abstraction.
     - Technical notes: YAML parse off main thread; staleness calc; file existence check; no mock data.
   - Story 1.4: Command and prompt copy/edit (parallel-safe after 1.1)
@@ -109,7 +110,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
     - Acceptance:
       - Given a workflow card, When I click copy, Then the exact command copies with success toast <0.5s.
       - Given a prompt/command editor, When I edit, Then the edited text is validated (no path escapes) and copyable.
-      - Given the Electron shell reuses the apps/v0 Next.js bundle, When wiring copy/edit, Then shared UI logic is reused without forking, adapting only the host integration.
+      - Given the Electron shell reuses the apps/ui Next.js bundle, When wiring copy/edit, Then shared UI logic is reused without forking, adapting only the host integration.
     - Prerequisites: Story 1.1 (active repo for substitutions); can run parallel to 1.3.
     - Technical notes: clipboard sanitize; inline editor with guardrails; repo-scoped substitutions only.
   - Story 1.5: Docs surfacing and health checks (parallel-safe after 1.1)
@@ -130,23 +131,33 @@ This living document decomposes the PRD into epics and stories for Mission Contr
       - Given updater channel, When an update exists, Then UI surfaces current vs available; offline shows last-known state.
       - Given an update, When I accept, Then app restarts/applies update from in-app flow.
     - Prerequisites: Story 1.1
-    - Technical notes: autoUpdater channel; code-sign later; staleness badge; defer/apply paths; package and ship the shared apps/v0 Next.js bundle used by the desktop shell.
+    - Technical notes: autoUpdater channel; code-sign later; staleness badge; defer/apply paths; package and ship the shared apps/ui Next.js bundle used by the desktop shell.
   - Story 1.8: Action logging (local, PII-safe) (parallel-safe after 1.1)
     - As a user, I want recent action logs, so I can see what happened.
     - Acceptance:
       - Given local actions, When I open logs, Then I see recent reads/copies without PII/keys.
     - Prerequisites: Story 1.1
     - Technical notes: structured JSON; redact paths/keys; bounded retention.
+  - Story 1.9: Flow detection and adaptive workflow board (parallel-safe after 1.1; coordinate with 1.3)
+    - As a user, I want the board to render phases/workflows based on the selected track/field type and `workflow_path`, so quick/method/enterprise flows display the correct steps.
+    - Acceptance:
+      - Given `workflow_status` has `workflow_path` to a quick/method/enterprise file, When the board loads, Then it renders phases/workflows from that file with correct required/optional/recommended/conditional/prerequisite flags.
+      - Given statuses in `workflow_status`, When rendering, Then status/badges/output links align to the mapped workflows.
+      - Given missing `workflow_path`, When loading, Then the UI surfaces an actionable error and offers manual selection of track + field_type (quick-flow, bmad-method, enterprise; greenfield/brownfield), then loads that path.
+      - Given quick flow, When rendering, Then only tech-spec + sprint-planning path appears; given enterprise, discovery/test-design requirements appear; given brownfield prerequisite, documentation displays when `if_undocumented` is true.
+    - Prerequisites: Story 1.1 (repo context); coordinate with Story 1.3 for schema alignment.
+    - Technical notes: Merge path YAML phases/workflows into board schema; fallback to error + manual selection if path missing; no changes to Story 1.1.
 
 ### Epic 2: VS Code Extension — Parity with Electron MVP (No Terminal/BYOK)
-- Goal: Deliver the VS Code extension using the same shared apps/v0 Next.js bundle (no Electron APIs) with live data, board tracking, and command/prompt copy+edit. Terminal and BYOK remain excluded; Copilot overlay is deferred.
+
+- Goal: Deliver the VS Code extension using the same shared apps/ui Next.js bundle (no Electron APIs) with live data, board tracking, and command/prompt copy+edit. Terminal and BYOK remain excluded; Copilot overlay is deferred.
 - FR coverage: FR-019, FR-020, FR-021 (UI in VS Code with constraints), plus reuse of FR-001–FR-013 where applicable to VS Code constraints (terminal/BYOK excluded here).
 - Stories:
   - Story 2.1: VS Code webview host using shared bundle
     - As a user, I want the extension UI to load inside VS Code, so I can view status without leaving the editor.
-    - Acceptance: Webview loads the same shared apps/v0 Next.js bundle used by Electron; respects workspace path; no Electron APIs.
+    - Acceptance: Webview loads the same shared apps/ui Next.js bundle used by Electron; respects workspace path; no Electron APIs.
     - Prerequisites: Epic 1 build artifacts.
-    - Technical notes: package from apps/v0 build; CSP; message passing to extension host; reuse shared bundle artifacts instead of forking UI logic.
+    - Technical notes: package from apps/ui build; CSP; message passing to extension host; reuse shared bundle artifacts instead of forking UI logic.
   - Story 2.2: Workspace-scoped repo selection and validation
     - As a user, I want the extension to use the VS Code workspace path, so data stays in project scope.
     - Acceptance: Workspace path default; allows override with validation; persists via memento.
@@ -168,6 +179,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
     - Prerequisites: Story 2.3
 
 ### Epic 3: Electron Feature Completers — Terminal, BYOK Chat, Reliability Add-ons
+
 - Goal: Finish desktop-specific capabilities: embedded terminal, BYOK chat, and reliability add-ons (offline cache, file-change notifications, multi-repo).
 - FR coverage: FR-014, FR-015, FR-017, FR-018, FR-026, FR-027, FR-028 (and deepen FR-006/FR-025)
 - Stories:
@@ -180,6 +192,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
   - Story 3.7: BYOK UX polish (secret entry UX, redaction verification)
 
 ### Epic 4: Copilot-Enhanced Extension + Overlay
+
 - Goal: Add Copilot-backed chat and a custom chat overlay in the VS Code extension while keeping constraints (no Electron/BYOK/terminal).
 - FR coverage: Extends FR-019–FR-021 with Copilot overlay; leverages FR-020 for command copy; sets groundwork for FR-029/FR-031 later.
 - Stories:
@@ -189,6 +202,7 @@ This living document decomposes the PRD into epics and stories for Mission Contr
   - Story 4.4: Reliability and staleness signaling within overlay
 
 ### Epic 5: Automation & Analytics (Vision)
+
 - Goal: Prepare for automation flows and analytics once core surfaces are stable.
 - FR coverage: FR-029, FR-030, FR-031
 - Stories:
@@ -200,45 +214,46 @@ This living document decomposes the PRD into epics and stories for Mission Contr
 
 ## FR Coverage Matrix
 
-| FR | Epic → Story | Parallel-Safety | Notes |
-| --- | --- | --- | --- |
-| FR-001 (repo select) | E1 → 1.1 | Sequential anchor | Active repo context for all; must land first. |
-| FR-002 (BMAD health) | E1 → 1.1 | Sequential anchor | Health gating on select; reused by others. |
-| FR-003 (status load) | E1 → 1.3 | Parallel-safe after 1.1 | Board ingest/staleness. |
-| FR-004 (refresh) | E1 → 1.3 | Parallel-safe after 1.1 | Manual refresh path. |
-| FR-005 (docs view) | E1 → 1.5 | Parallel-safe after 1.1 | Doc links/existence checks. |
-| FR-006 (offline mode) | E1 → 1.6; E3 → 3.3 | Parallel-safe after 1.1 (base); later cache | Base gating; deeper cache in E3. |
-| FR-007 (auto-update) | E1 → 1.7 | Parallel-safe after 1.1 | In-app update surface/apply. |
-| FR-008 (board) | E1 → 1.3 | Parallel-safe after 1.1 | Phases/workflows render. |
-| FR-009 (card detail) | E1 → 1.3 | Parallel-safe after 1.1 | Card details/staleness. |
-| FR-010 (next actions) | E1 → 1.3 | Parallel-safe after 1.1 | Recommendations from status. |
-| FR-011 (copy command) | E1 → 1.4; E2 → 2.4 | Parallel-safe after 1.1 | Copy/edit both surfaces. |
-| FR-012 (launch run) | E3 → 3.1 | Parallel-safe after 1.1; depends on terminal | Add run-in-terminal in desktop. |
-| FR-013 (doc links) | E1 → 1.5 | Parallel-safe after 1.1 | Includes epics/docScan/architecture. |
-| FR-014 (agent roster) | E1 → 1.3 | Parallel-safe after 1.1 | Agent mapping on board. |
-| FR-015 (BYOK chat) | E3 → 3.2 | Parallel-safe after 1.1 | Desktop-only. |
-| FR-016 (chat context share) | E3 → 3.2 | Parallel-safe after 1.1 | Desktop-only. |
-| FR-017 (terminal) | E3 → 3.1 | Parallel-safe after 1.1 | Desktop terminal gating. |
-| FR-018 (terminal copy/paste) | E3 → 3.1, 3.6 | Parallel-safe after 1.1 | Desktop terminal UX. |
-| FR-019 (VS Code surface) | E2 → 2.1 | Parallel-safe vs E1 after shared bundle | Webview host. |
-| FR-020 (VS Code copy) | E2 → 2.4 | Parallel-safe vs E1 after shared bundle | Copy/edit in extension. |
-| FR-021 (VS Code constraints) | E2 → 2.1–2.3 | Parallel-safe vs E1 after shared bundle | No Electron/BYOK/terminal. |
-| FR-022 (empty/error states) | E1 → 1.1, 1.3 | Parallel-safe after 1.1 | Health/staleness states. |
-| FR-023 (persistence) | E1 → 1.1, 1.2 | Sequential anchor (1.1), parallel after | Repo + filters persistence. |
-| FR-024 (offline blocking) | E1 → 1.6 | Parallel-safe after 1.1 | Blocks CLI/chat/terminal. |
-| FR-025 (local logs) | E1 → 1.8 | Parallel-safe after 1.1 | PII-safe action log. |
-| FR-026 (offline cache) | E3 → 3.3 | Parallel-safe after 1.1 | Cached status/docs. |
-| FR-027 (file change notify) | E3 → 3.4 | Parallel-safe after 1.1 | Refresh prompts. |
-| FR-028 (multi-repo) | E1 → 1.2 (base), E3 → 3.5 (polish) | Parallel-safe after 1.1 | Switcher + UX hardening. |
-| FR-029 (automation) | E5 → 5.1 | Parallel-safe after 1.x foundation | Guardrails/confirm flows. |
-| FR-030 (cross-repo view) | E5 → 5.2 | Parallel-safe after multi-repo | Aggregation scaffolding. |
-| FR-031 (analytics) | E5 → 5.3 | Parallel-safe after instrumentation | Non-PII counters. |
+| FR                           | Epic → Story                       | Parallel-Safety                              | Notes                                         |
+| ---------------------------- | ---------------------------------- | -------------------------------------------- | --------------------------------------------- |
+| FR-001 (repo select)         | E1 → 1.1                           | Sequential anchor                            | Active repo context for all; must land first. |
+| FR-002 (BMAD health)         | E1 → 1.1                           | Sequential anchor                            | Health gating on select; reused by others.    |
+| FR-003 (status load)         | E1 → 1.3                           | Parallel-safe after 1.1                      | Board ingest/staleness.                       |
+| FR-004 (refresh)             | E1 → 1.3                           | Parallel-safe after 1.1                      | Manual refresh path.                          |
+| FR-005 (docs view)           | E1 → 1.5                           | Parallel-safe after 1.1                      | Doc links/existence checks.                   |
+| FR-006 (offline mode)        | E1 → 1.6; E3 → 3.3                 | Parallel-safe after 1.1 (base); later cache  | Base gating; deeper cache in E3.              |
+| FR-007 (auto-update)         | E1 → 1.7                           | Parallel-safe after 1.1                      | In-app update surface/apply.                  |
+| FR-008 (board)               | E1 → 1.3                           | Parallel-safe after 1.1                      | Phases/workflows render.                      |
+| FR-009 (card detail)         | E1 → 1.3                           | Parallel-safe after 1.1                      | Card details/staleness.                       |
+| FR-010 (next actions)        | E1 → 1.3                           | Parallel-safe after 1.1                      | Recommendations from status.                  |
+| FR-011 (copy command)        | E1 → 1.4; E2 → 2.4                 | Parallel-safe after 1.1                      | Copy/edit both surfaces.                      |
+| FR-012 (launch run)          | E3 → 3.1                           | Parallel-safe after 1.1; depends on terminal | Add run-in-terminal in desktop.               |
+| FR-013 (doc links)           | E1 → 1.5                           | Parallel-safe after 1.1                      | Includes epics/docScan/architecture.          |
+| FR-014 (agent roster)        | E1 → 1.3                           | Parallel-safe after 1.1                      | Agent mapping on board.                       |
+| FR-015 (BYOK chat)           | E3 → 3.2                           | Parallel-safe after 1.1                      | Desktop-only.                                 |
+| FR-016 (chat context share)  | E3 → 3.2                           | Parallel-safe after 1.1                      | Desktop-only.                                 |
+| FR-017 (terminal)            | E3 → 3.1                           | Parallel-safe after 1.1                      | Desktop terminal gating.                      |
+| FR-018 (terminal copy/paste) | E3 → 3.1, 3.6                      | Parallel-safe after 1.1                      | Desktop terminal UX.                          |
+| FR-019 (VS Code surface)     | E2 → 2.1                           | Parallel-safe vs E1 after shared bundle      | Webview host.                                 |
+| FR-020 (VS Code copy)        | E2 → 2.4                           | Parallel-safe vs E1 after shared bundle      | Copy/edit in extension.                       |
+| FR-021 (VS Code constraints) | E2 → 2.1–2.3                       | Parallel-safe vs E1 after shared bundle      | No Electron/BYOK/terminal.                    |
+| FR-022 (empty/error states)  | E1 → 1.1, 1.3                      | Parallel-safe after 1.1                      | Health/staleness states.                      |
+| FR-023 (persistence)         | E1 → 1.1, 1.2                      | Sequential anchor (1.1), parallel after      | Repo + filters persistence.                   |
+| FR-024 (offline blocking)    | E1 → 1.6                           | Parallel-safe after 1.1                      | Blocks CLI/chat/terminal.                     |
+| FR-025 (local logs)          | E1 → 1.8                           | Parallel-safe after 1.1                      | PII-safe action log.                          |
+| FR-026 (offline cache)       | E3 → 3.3                           | Parallel-safe after 1.1                      | Cached status/docs.                           |
+| FR-027 (file change notify)  | E3 → 3.4                           | Parallel-safe after 1.1                      | Refresh prompts.                              |
+| FR-028 (multi-repo)          | E1 → 1.2 (base), E3 → 3.5 (polish) | Parallel-safe after 1.1                      | Switcher + UX hardening.                      |
+| FR-029 (automation)          | E5 → 5.1                           | Parallel-safe after 1.x foundation           | Guardrails/confirm flows.                     |
+| FR-030 (cross-repo view)     | E5 → 5.2                           | Parallel-safe after multi-repo               | Aggregation scaffolding.                      |
+| FR-031 (analytics)           | E5 → 5.3                           | Parallel-safe after instrumentation          | Non-PII counters.                             |
 
 ---
 
 ## Summary
 
 Initial epic structure defined with prioritized sequencing per roadmap:
+
 - Electron MVP with live data + UI tracking + command/prompt copy+edit + auto-update (Epic 1; terminal/BYOK deferred)
 - VS Code extension parity (same features, no terminal/BYOK) (Epic 2)
 - Return to Electron for terminal, BYOK chat, reliability add-ons (Epic 3)

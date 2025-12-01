@@ -1,0 +1,176 @@
+<testsuites id="" name="" tests="54" failures="0" skipped="6" errors="0" time="7.108055">
+<testsuite name="example.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="chromium" tests="2" failures="0" skipped="2" time="0.322" errors="0">
+<testcase name="Example Test Suite › home responds (network-first)" classname="example.spec.ts" time="0.312">
+<properties>
+<property name="skip" value="Set BASE_URL to run network homepage check">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Example Test Suite › creates user via factory (skips when API_URL is not set)" classname="example.spec.ts" time="0.01">
+<properties>
+<property name="skip" value="Set API_URL to run factory-backed tests">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="host-config.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="chromium" tests="3" failures="0" skipped="0" time="0.032" errors="0">
+<testcase name="Electron host configuration › enforces preload hardening and IPC allowlist" classname="host-config.spec.ts" time="0.008">
+</testcase>
+<testcase name="Electron host configuration › preload exposes repo health API and devDocs allowlist" classname="host-config.spec.ts" time="0.007">
+</testcase>
+<testcase name="Electron host configuration › preload repoHealth enforces config-only gate and output readability" classname="host-config.spec.ts" time="0.017">
+</testcase>
+</testsuite>
+<testsuite name="repo-health.unit.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="chromium" tests="6" failures="0" skipped="0" time="0.053" errors="0">
+<testcase name="Repo health server logic › returns healthy when required and optional artifacts exist" classname="repo-health.unit.spec.ts" time="0.01">
+</testcase>
+<testcase name="Repo health server logic › reports missing required artifact for unhealthy repo" classname="repo-health.unit.spec.ts" time="0.004">
+</testcase>
+<testcase name="Repo health server logic › blocks repo outside allowlist" classname="repo-health.unit.spec.ts" time="0.013">
+</testcase>
+<testcase name="Repo health server logic › fails when output folder is configured but missing" classname="repo-health.unit.spec.ts" time="0.014">
+</testcase>
+<testcase name="Repo health server logic › passes when only config exists and no output folder configured" classname="repo-health.unit.spec.ts" time="0.005">
+</testcase>
+<testcase name="Repo health server logic › persists, reads, and clears active repo record" classname="repo-health.unit.spec.ts" time="0.007">
+</testcase>
+</testsuite>
+<testsuite name="repo-selection.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="chromium" tests="5" failures="0" skipped="0" time="0.637" errors="0">
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] validates healthy repo when config exists and persists active+recent state" classname="repo-selection.spec.ts" time="0.106">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] restore revalidates and clears active on unhealthy repo" classname="repo-selection.spec.ts" time="0.111">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] fails when output folder configured but unreadable" classname="repo-selection.spec.ts" time="0.099">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] rejects repos outside allowlist" classname="repo-selection.spec.ts" time="0.089">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] restore returns persisted repo state and artifacts" classname="repo-selection.spec.ts" time="0.232">
+</testcase>
+</testsuite>
+<testsuite name="repo-store.api.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="chromium" tests="2" failures="0" skipped="0" time="0.046" errors="0">
+<testcase name="Story 1.1 — Repository store API contracts › revalidates saved repo on launch and returns health status" classname="repo-store.api.spec.ts" time="0.025">
+</testcase>
+<testcase name="Story 1.1 — Repository store API contracts › rejects invalid repos and surfaces missing artifacts on persist" classname="repo-store.api.spec.ts" time="0.021">
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="firefox" tests="2" failures="0" skipped="2" time="0.923" errors="0">
+<testcase name="Example Test Suite › home responds (network-first)" classname="example.spec.ts" time="0.909">
+<properties>
+<property name="skip" value="Set BASE_URL to run network homepage check">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Example Test Suite › creates user via factory (skips when API_URL is not set)" classname="example.spec.ts" time="0.014">
+<properties>
+<property name="skip" value="Set API_URL to run factory-backed tests">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="host-config.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="firefox" tests="3" failures="0" skipped="0" time="0.031" errors="0">
+<testcase name="Electron host configuration › enforces preload hardening and IPC allowlist" classname="host-config.spec.ts" time="0.007">
+</testcase>
+<testcase name="Electron host configuration › preload exposes repo health API and devDocs allowlist" classname="host-config.spec.ts" time="0.005">
+</testcase>
+<testcase name="Electron host configuration › preload repoHealth enforces config-only gate and output readability" classname="host-config.spec.ts" time="0.019">
+</testcase>
+</testsuite>
+<testsuite name="repo-health.unit.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="firefox" tests="6" failures="0" skipped="0" time="0.101" errors="0">
+<testcase name="Repo health server logic › returns healthy when required and optional artifacts exist" classname="repo-health.unit.spec.ts" time="0.009">
+</testcase>
+<testcase name="Repo health server logic › reports missing required artifact for unhealthy repo" classname="repo-health.unit.spec.ts" time="0.032">
+</testcase>
+<testcase name="Repo health server logic › blocks repo outside allowlist" classname="repo-health.unit.spec.ts" time="0.014">
+</testcase>
+<testcase name="Repo health server logic › fails when output folder is configured but missing" classname="repo-health.unit.spec.ts" time="0.026">
+</testcase>
+<testcase name="Repo health server logic › passes when only config exists and no output folder configured" classname="repo-health.unit.spec.ts" time="0.007">
+</testcase>
+<testcase name="Repo health server logic › persists, reads, and clears active repo record" classname="repo-health.unit.spec.ts" time="0.013">
+</testcase>
+</testsuite>
+<testsuite name="repo-selection.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="firefox" tests="5" failures="0" skipped="0" time="0.489" errors="0">
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] validates healthy repo when config exists and persists active+recent state" classname="repo-selection.spec.ts" time="0.071">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] restore revalidates and clears active on unhealthy repo" classname="repo-selection.spec.ts" time="0.072">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] fails when output folder configured but unreadable" classname="repo-selection.spec.ts" time="0.067">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] rejects repos outside allowlist" classname="repo-selection.spec.ts" time="0.201">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] restore returns persisted repo state and artifacts" classname="repo-selection.spec.ts" time="0.078">
+</testcase>
+</testsuite>
+<testsuite name="repo-store.api.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="firefox" tests="2" failures="0" skipped="0" time="0.049" errors="0">
+<testcase name="Story 1.1 — Repository store API contracts › revalidates saved repo on launch and returns health status" classname="repo-store.api.spec.ts" time="0.026">
+</testcase>
+<testcase name="Story 1.1 — Repository store API contracts › rejects invalid repos and surfaces missing artifacts on persist" classname="repo-store.api.spec.ts" time="0.023">
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="webkit" tests="2" failures="0" skipped="2" time="1.671" errors="0">
+<testcase name="Example Test Suite › home responds (network-first)" classname="example.spec.ts" time="1.659">
+<properties>
+<property name="skip" value="Set BASE_URL to run network homepage check">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Example Test Suite › creates user via factory (skips when API_URL is not set)" classname="example.spec.ts" time="0.012">
+<properties>
+<property name="skip" value="Set API_URL to run factory-backed tests">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="host-config.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="webkit" tests="3" failures="0" skipped="0" time="0.027" errors="0">
+<testcase name="Electron host configuration › enforces preload hardening and IPC allowlist" classname="host-config.spec.ts" time="0.006">
+</testcase>
+<testcase name="Electron host configuration › preload exposes repo health API and devDocs allowlist" classname="host-config.spec.ts" time="0.005">
+</testcase>
+<testcase name="Electron host configuration › preload repoHealth enforces config-only gate and output readability" classname="host-config.spec.ts" time="0.016">
+</testcase>
+</testsuite>
+<testsuite name="repo-health.unit.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="webkit" tests="6" failures="0" skipped="0" time="0.037" errors="0">
+<testcase name="Repo health server logic › returns healthy when required and optional artifacts exist" classname="repo-health.unit.spec.ts" time="0.011">
+</testcase>
+<testcase name="Repo health server logic › reports missing required artifact for unhealthy repo" classname="repo-health.unit.spec.ts" time="0.005">
+</testcase>
+<testcase name="Repo health server logic › blocks repo outside allowlist" classname="repo-health.unit.spec.ts" time="0.004">
+</testcase>
+<testcase name="Repo health server logic › fails when output folder is configured but missing" classname="repo-health.unit.spec.ts" time="0.003">
+</testcase>
+<testcase name="Repo health server logic › passes when only config exists and no output folder configured" classname="repo-health.unit.spec.ts" time="0.003">
+</testcase>
+<testcase name="Repo health server logic › persists, reads, and clears active repo record" classname="repo-health.unit.spec.ts" time="0.011">
+</testcase>
+</testsuite>
+<testsuite name="repo-selection.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="webkit" tests="5" failures="0" skipped="0" time="0.627" errors="0">
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] validates healthy repo when config exists and persists active+recent state" classname="repo-selection.spec.ts" time="0.117">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P0] restore revalidates and clears active on unhealthy repo" classname="repo-selection.spec.ts" time="0.107">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] fails when output folder configured but unreadable" classname="repo-selection.spec.ts" time="0.098">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] rejects repos outside allowlist" classname="repo-selection.spec.ts" time="0.165">
+</testcase>
+<testcase name="Story 1.1 — Repo selection, validation, and persistence (config gate) › [P1] restore returns persisted repo state and artifacts" classname="repo-selection.spec.ts" time="0.14">
+</testcase>
+</testsuite>
+<testsuite name="repo-store.api.spec.ts" timestamp="2025-12-01T06:45:55.103Z" hostname="webkit" tests="2" failures="0" skipped="0" time="0.044" errors="0">
+<testcase name="Story 1.1 — Repository store API contracts › revalidates saved repo on launch and returns health status" classname="repo-store.api.spec.ts" time="0.025">
+</testcase>
+<testcase name="Story 1.1 — Repository store API contracts › rejects invalid repos and surfaces missing artifacts on persist" classname="repo-store.api.spec.ts" time="0.019">
+</testcase>
+</testsuite>
+</testsuites>

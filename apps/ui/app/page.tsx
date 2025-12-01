@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Header } from "@/components/bmad/header"
 import { BoardView } from "@/components/bmad/board-view"
 import { SettingsPanel } from "@/components/bmad/settings-panel"
@@ -12,20 +14,15 @@ import { TerminalManager, type TerminalAgent } from "@/components/bmad/terminal-
 import { ChatManager } from "@/components/bmad/chat-manager"
 import { DocsManager } from "@/components/bmad/docs-manager"
 import { WorkflowStepRunner } from "@/components/bmad/workflow-step-runner"
-import { WelcomeScreen } from "@/components/bmad/welcome-screen"
-import { InitRequiredScreen } from "@/components/bmad/init-required-screen"
 import { AgentsPanel } from "@/components/bmad/agents-panel"
 import type { TerminalLaunchConfig } from "@/components/bmad/terminal-launch-dialog"
 import type { SidebarPanel } from "@/components/bmad/slide-sidebar"
 import {
-  getRepositories,
-  addRepository as addRepoToStore,
-  removeRepository as removeRepoFromStore,
-  getActiveRepositoryId,
-  setActiveRepositoryId,
-  checkBmadInstalled,
+  toRepositoryList,
   type BmadRepository,
 } from "@/lib/repository-store"
+import type { RepoHealthResult, RepositoryState } from "@/lib/repo-types"
+import { callRepoEndpoint } from "@/lib/client/repo-api"
 import type {
   Phase,
   WorkflowCard,
@@ -41,24 +38,18 @@ import type {
 import { SPRINT_PLANNING_WORKFLOW } from "@/lib/bmad-data"
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { WelcomeScreen } from "@/components/bmad/welcome-screen"
+import { AlertTriangle } from "lucide-react"
 
 export default function MissionControl() {
+  const router = useRouter()
   const [repositories, setRepositories] = useState<BmadRepository[]>([])
   const [activeRepository, setActiveRepository] = useState<BmadRepository | null>(null)
-  const [addRepoDialogOpen, setAddRepoDialogOpen] = useState(false)
-  const [newRepoName, setNewRepoName] = useState("")
-  const [newRepoPath, setNewRepoPath] = useState("")
+  const [repoState, setRepoState] = useState<RepositoryState | null>(null)
+  const [repoHealth, setRepoHealth] = useState<RepoHealthResult | null>(null)
+  const [repoLoading, setRepoLoading] = useState(true)
+  const [repoError, setRepoError] = useState<string | null>(null)
 
   const [activePhase, setActivePhase] = useState<Phase | "all" | "discovery">("all")
 
@@ -96,21 +87,94 @@ export default function MissionControl() {
     setActivePanel(null)
   }
 
-  useEffect(() => {
-    const repos = getRepositories()
-    setRepositories(repos)
+  const isHealthPayload = (
+    payload: RepoHealthResult | { status?: unknown } | undefined,
+  ): payload is RepoHealthResult => typeof payload?.status === "string"
 
-    const activeId = getActiveRepositoryId()
-    if (activeId) {
-      const active = repos.find((r) => r.id === activeId)
-      if (active) {
-        setActiveRepository(active)
+  const restoreRepoState = async (pathOverride?: string) => {
+    setRepoLoading(true)
+    setRepoError(null)
+    let isHealthy = false
+    try {
+      const { response, data } = await callRepoEndpoint<RepoHealthResult & { state?: RepositoryState; error?: string; message?: string }>(
+        "restore",
+        pathOverride ? { repoPath: pathOverride } : undefined,
+      )
+
+      if (isHealthPayload(data)) {
+        setRepoHealth(data)
+        setRepoState(data.state ?? null)
+        isHealthy = data.status === "healthy"
+      } else if ("state" in data && data.state) {
+        setRepoState(data.state)
+        setRepoHealth(null)
       }
-    } else if (repos.length === 1) {
-      setActiveRepository(repos[0])
-      setActiveRepositoryId(repos[0].id)
+
+      if (!response.ok) {
+        const message = (data as any).error ?? (data as any).message ?? "Unable to restore repository"
+        setRepoError(message)
+      }
+    } catch (err) {
+      setRepoHealth(null)
+      setRepoState(null)
+      setRepoError(err instanceof Error ? err.message : "Unable to restore repository")
     }
+    setRepoLoading(false)
+    return isHealthy
+  }
+
+  const persistRepoState = async (repoPath: string, displayName?: string) => {
+    setRepoLoading(true)
+    setRepoError(null)
+    let isHealthy = false
+    try {
+      const { response, data } = await callRepoEndpoint<RepoHealthResult & { state?: RepositoryState; error?: string; message?: string }>(
+        "persist",
+        { repoPath, displayName },
+      )
+
+      if (isHealthPayload(data)) {
+        setRepoHealth(data)
+        setRepoState(data.state ?? null)
+        isHealthy = data.status === "healthy"
+      } else if ("state" in data && data.state) {
+        setRepoState(data.state)
+        setRepoHealth(null)
+      }
+
+      if (!response.ok) {
+        const message = (data as any).error ?? (data as any).message ?? "Unable to persist repository"
+        setRepoError(message)
+      }
+    } catch (err) {
+      setRepoHealth(null)
+      setRepoState(null)
+      setRepoError(err instanceof Error ? err.message : "Unable to persist repository")
+    }
+    setRepoLoading(false)
+    return isHealthy
+  }
+
+  useEffect(() => {
+    restoreRepoState()
   }, [])
+
+  useEffect(() => {
+    const derived = toRepositoryList(repoState ?? { active: null, recent: [] })
+    setRepositories(derived)
+    if (repoState?.active) {
+      const active = derived.find((repo) => repo.path === repoState.active?.repoPath)
+      setActiveRepository(active ?? null)
+    } else {
+      setActiveRepository(null)
+    }
+  }, [repoState])
+
+  useEffect(() => {
+    if (repoHealth?.status === "unhealthy") {
+      setActiveRepository(null)
+    }
+  }, [repoHealth])
 
   useEffect(() => {
     const activeProvider = providers.find((p) => p.isActive)
@@ -144,70 +208,51 @@ export default function MissionControl() {
     }
   }, [highlightedStoryId])
 
-  const handleSelectRepository = (repo: BmadRepository) => {
-    setActiveRepository(repo)
-    setActiveRepositoryId(repo.id)
-    setActivePhase("all")
-    setSelectedWorkflow(null)
-    setSelectedDiscoveryWorkflow(null)
-    setSelectedPhaseWorkflow(null)
-    setSelectedStory(null)
-    setSelectedEpic(null)
-    toast.success(`Switched to ${repo.name}`)
-  }
-
-  const handleAddRepository = (name: string, path: string) => {
-    const { installed, initialized } = checkBmadInstalled(path)
-    if (!installed) {
-      toast.error("BMAD not found", {
-        description: "The selected folder does not have BMAD installed.",
+  const handleSelectRepository = async (repo: BmadRepository) => {
+    const healthy = await restoreRepoState(repo.path)
+    if (healthy) {
+      setActivePhase("all")
+      setSelectedWorkflow(null)
+      setSelectedDiscoveryWorkflow(null)
+      setSelectedPhaseWorkflow(null)
+      setSelectedStory(null)
+      setSelectedEpic(null)
+      toast.success(`Switched to ${repo.name}`)
+    } else {
+      toast.error("Repository is unhealthy", {
+        description: "Fix required BMAD artifacts and retry.",
       })
-      return
     }
-
-    const newRepo = addRepoToStore({
-      name,
-      path,
-      isInitialized: initialized,
-      hasSprintStatus: false,
-    })
-
-    setRepositories(getRepositories())
-    setActiveRepository(newRepo)
-    setActiveRepositoryId(newRepo.id)
-    toast.success(`Added ${name}`)
   }
 
-  const handleRemoveRepository = (id: string) => {
-    removeRepoFromStore(id)
-    const repos = getRepositories()
-    setRepositories(repos)
+  const handleRemoveRepository = async (id: string) => {
+    const target = repositories.find((repo) => repo.id === id)
+    const confirmed = typeof window === "undefined" ? true : window.confirm(`Remove ${target?.name ?? id} from Mission Control?`)
+    if (!confirmed) return
 
-    if (activeRepository?.id === id) {
-      if (repos.length > 0) {
-        setActiveRepository(repos[0])
-        setActiveRepositoryId(repos[0].id)
+    setRepoLoading(true)
+    setRepoError(null)
+    try {
+      const { response, data } = await callRepoEndpoint<{ state?: RepositoryState; error?: string; message?: string }>("remove", {
+        repoPath: id,
+      })
+      if (!response.ok) {
+        const message = (data as any).error ?? (data as any).message ?? "Unable to remove repository"
+        setRepoError(message)
+        toast.error(message)
       } else {
-        setActiveRepository(null)
-        setActiveRepositoryId(null)
+        setRepoState(data.state ?? null)
+        if (data.state?.active?.repoPath === id) {
+          setRepoHealth(null)
+        }
+        toast.success("Repository removed")
       }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to remove repository"
+      setRepoError(message)
+      toast.error(message)
     }
-    toast.success("Repository removed")
-  }
-
-  const handleOpenAddRepoDialog = () => {
-    setAddRepoDialogOpen(true)
-  }
-
-  const handleConfirmAddRepo = () => {
-    if (!newRepoName.trim() || !newRepoPath.trim()) {
-      toast.error("Please enter both name and path")
-      return
-    }
-    handleAddRepository(newRepoName.trim(), newRepoPath.trim())
-    setNewRepoName("")
-    setNewRepoPath("")
-    setAddRepoDialogOpen(false)
+    setRepoLoading(false)
   }
 
   const handleSelectStory = (story: Story, epic: Epic) => {
@@ -341,16 +386,6 @@ export default function MissionControl() {
     setSelectedPhaseWorkflow(SPRINT_PLANNING_WORKFLOW as PhaseWorkflow)
   }
 
-  const handleRunInit = () => {
-    if (activeRepository) {
-      const updatedRepo = { ...activeRepository, isInitialized: true }
-      setActiveRepository(updatedRepo)
-      const repos = repositories.map((r) => (r.id === activeRepository.id ? updatedRepo : r))
-      setRepositories(repos)
-      toast.success("BMAD initialized successfully")
-    }
-  }
-
   const handleRunWorkflowInTerminal = (config: TerminalLaunchConfig) => {
     setTerminalLaunchConfig(config)
     setTerminalLaunchDialogOpen(true)
@@ -444,78 +479,20 @@ export default function MissionControl() {
     </>
   )
 
-  if (repositories.length === 0) {
+  if (repoLoading) {
     return (
-      <div className="h-screen flex flex-col bg-background">
-        <Header
-          activePhase={activePhase}
-          setActivePhase={setActivePhase}
-          onOpenSettings={() => openPanel("settings")}
-          onOpenChat={() => openPanel("chat")}
-          onOpenTerminal={() => openPanel("terminal")}
-          onOpenDocs={() => openPanel("docs")}
-          onOpenAgents={() => openPanel("agents")}
-          repositories={repositories}
-          activeRepository={activeRepository}
-          onSelectRepository={handleSelectRepository}
-          onAddRepository={handleAddRepository}
-          onRemoveRepository={handleRemoveRepository}
-        />
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <WelcomeScreen onAddRepository={handleOpenAddRepoDialog} />
-          </div>
-          {renderSidebarPanels()}
-        </div>
-        <Dialog open={addRepoDialogOpen} onOpenChange={setAddRepoDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add BMAD Repository</DialogTitle>
-              <DialogDescription>Add a folder or repository that uses the BMAD method.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="repo-name">Project Name</Label>
-                <Input
-                  id="repo-name"
-                  placeholder="My Project"
-                  value={newRepoName}
-                  onChange={(e) => setNewRepoName(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="repo-path">Folder Path</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="repo-path"
-                    placeholder="/path/to/project"
-                    value={newRepoPath}
-                    onChange={(e) => setNewRepoPath(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => setNewRepoPath(`/Users/demo/projects/${newRepoName || "my-project"}`)}
-                  >
-                    Browse
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setAddRepoDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleConfirmAddRepo}>Add Repository</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Restoring repository state…</div>
         <Toaster position="bottom-right" />
       </div>
     )
   }
 
-  if (activeRepository && !activeRepository.isInitialized) {
+  const hasRepositories = repositories.length > 0
+  const repoIsHealthy = repoHealth?.status === "healthy" && !!activeRepository
+  const showHealthBlocker = repoHealth?.status === "unhealthy" && hasRepositories
+
+  if (!repoIsHealthy) {
     return (
       <div className="h-screen flex flex-col bg-background">
         <Header
@@ -529,18 +506,42 @@ export default function MissionControl() {
           repositories={repositories}
           activeRepository={activeRepository}
           onSelectRepository={handleSelectRepository}
-          onAddRepository={handleAddRepository}
           onRemoveRepository={handleRemoveRepository}
         />
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <InitRequiredScreen
-              repository={activeRepository}
-              onRunInit={handleRunInit}
-              onOpenTerminal={() => openPanel("terminal")}
-            />
-          </div>
-          {renderSidebarPanels()}
+        <div className="flex-1 flex items-center justify-center px-6">
+          {showHealthBlocker ? (
+            <div className="w-full max-w-3xl rounded-lg border bg-card shadow-sm p-6 space-y-4" data-testid="repo-health-blocker">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold">Repository health check failed</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Fix the required BMAD config and retry. Missing items are listed below.
+                  </p>
+                </div>
+              </div>
+              {repoHealth.missing?.length ? (
+                <div className="rounded-md border bg-muted/40 p-4">
+                  <p className="text-sm font-medium mb-2">Missing</p>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    {repoHealth.missing.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <div className="flex gap-3">
+                <Button onClick={() => router.push("repo/")}>Open repo health</Button>
+                <Button variant="outline" onClick={() => restoreRepoState()} disabled={repoLoading}>
+                  Retry validation
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <WelcomeScreen onAddRepository={() => router.push("repo/")} />
+          )}
         </div>
         <Toaster position="bottom-right" />
       </div>
@@ -560,7 +561,6 @@ export default function MissionControl() {
         repositories={repositories}
         activeRepository={activeRepository}
         onSelectRepository={handleSelectRepository}
-        onAddRepository={handleAddRepository}
         onRemoveRepository={handleRemoveRepository}
       />
 

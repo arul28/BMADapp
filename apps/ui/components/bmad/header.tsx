@@ -18,7 +18,6 @@ interface HeaderProps {
   repositories: BmadRepository[]
   activeRepository: BmadRepository | null
   onSelectRepository: (repo: BmadRepository) => void
-  onAddRepository: (name: string, path: string) => void
   onRemoveRepository: (id: string) => void
 }
 
@@ -33,7 +32,6 @@ export function Header({
   repositories,
   activeRepository,
   onSelectRepository,
-  onAddRepository,
   onRemoveRepository,
 }: HeaderProps) {
   const currentPhaseLabel =
@@ -56,7 +54,6 @@ export function Header({
           repositories={repositories}
           activeRepository={activeRepository}
           onSelectRepository={onSelectRepository}
-          onAddRepository={onAddRepository}
           onRemoveRepository={onRemoveRepository}
         />
 

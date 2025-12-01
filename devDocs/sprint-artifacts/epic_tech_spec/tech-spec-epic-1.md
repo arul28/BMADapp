@@ -16,7 +16,8 @@ Ship the desktop MVP with multi-repo selection and recent history, actionable em
 ## Objectives and Scope
 
 In scope
-- Package apps/v0 Next.js bundle in an Electron shell (Node 22, contextIsolation on, preload bridge) with repo allowlisting and offline-aware behavior.
+
+- Package apps/ui Next.js bundle in an Electron shell (Node 22, contextIsolation on, preload bridge) with repo allowlisting and offline-aware behavior.
 - Repo selection, validation, and persistence; multi-repo switcher with recent history and health gating.
 - Workflow board rendering from devDocs/bmm-workflow-status.yaml with staleness warnings, agent roster, and next-action hints.
 - Command/prompt copy and inline edit with sanitization and success feedback (<0.5s).
@@ -26,20 +27,21 @@ In scope
 - Solutioning sequence now includes TEA-led Test Framework Setup (`bmad framework`) and CI/CD Pipeline Setup (`bmad ci`) between architecture validation and implementation readiness; covered under Story 1.3 acceptance (cards visible with valid status keys and persistent commands).
 
 Out of scope
+
 - Embedded terminal execution and run-in-app flows (Epic 3).
 - BYOK chat/session flows (Epic 3); VS Code extension variant (Epic 2).
 - Automation/cross-repo aggregation/analytics (Epics 5+).
 
 ## System Architecture Alignment
 
-Reuses the shared Next.js 16 (apps/v0) bundle inside an Electron 33.x shell with contextIsolation enabled, nodeIntegration disabled, and a preload bridge for repo-scoped file reads (YAML/MD), command copy, and offline state. Aligns to the architecture guidance: Node 22 runtime per `.nvmrc`, local-only data access to devDocs artifacts (workflow status, docScan, PRD/architecture/epics), repo allowlisting via repository-store, staleness tagging on reads, and hardened IPC/CSP. AutoUpdater surfaces version/update state; no remote calls beyond explicit BYOK (deferred here). VS Code-specific constraints are excluded in this epic.
+Reuses the shared Next.js 16 (apps/ui) bundle inside an Electron 33.x shell with contextIsolation enabled, nodeIntegration disabled, and a preload bridge for repo-scoped file reads (YAML/MD), command copy, and offline state. Aligns to the architecture guidance: Node 22 runtime per `.nvmrc`, local-only data access to devDocs artifacts (workflow status, docScan, PRD/architecture/epics), repo allowlisting via repository-store, staleness tagging on reads, and hardened IPC/CSP. AutoUpdater surfaces version/update state; no remote calls beyond explicit BYOK (deferred here). VS Code-specific constraints are excluded in this epic.
 
 ## Detailed Design
 
 ### Services and Modules
 
 - Electron shell (apps/desktop to be added): wraps Next.js build, enforces contextIsolation on/nodeIntegration off, exposes preload bridge for repo-scoped FS reads (status/docs), command copy, offline state, and update channel surface.
-- UI bundle (apps/v0): board-view/workflow-card, repository-picker, docs-manager, agents-panel, copy-commands-inline; reuses dark theme and shared primitives.
+- UI bundle (apps/ui): board-view/workflow-card, repository-picker, docs-manager, agents-panel, copy-commands-inline; reuses dark theme and shared primitives.
 - Repository store: manages active repo, recent repos, health flags, and staleness timestamps; persists selections across sessions.
 - Status ingest/render: reads devDocs/bmm-workflow-status.yaml, parses YAML, tags staleness, renders phases/workflows/cards with agent roster and next-actions.
 - Docs surface: resolves PRD, architecture, epics/docScan files with existence checks; links to file paths and shows missing-state guidance.
@@ -57,7 +59,7 @@ Reuses the shared Next.js 16 (apps/v0) bundle inside an Electron 33.x shell with
 
 ### APIs and Interfaces
 
-- Preload IPC (desktop): `bmad:read-status`, `bmad:read-doc`, `bmad:copy-command`, `bmad:is-offline`, `bmad:repo-health`, `bmad:update-state` (read-only), mirroring types in `apps/v0/lib/ipc-types.ts`.
+- Preload IPC (desktop): `bmad:read-status`, `bmad:read-doc`, `bmad:copy-command`, `bmad:is-offline`, `bmad:repo-health`, `bmad:update-state` (read-only), mirroring types in `apps/ui/lib/ipc-types.ts`.
 - IPC request/response shapes (typed):
   - `bmad:read-status` req `{ repoPath }`; res `{ entries: WorkflowStatusEntry[], lastUpdated, staleMs }`; errors: `MISSING_FILE`, `PARSE_ERROR`, `PERMISSION_DENIED`.
   - `bmad:read-doc` req `{ repoPath, relativePath }`; res `{ content, exists, lastReadAt, staleMs }`; errors: `MISSING_FILE`, `PERMISSION_DENIED`.
@@ -66,7 +68,7 @@ Reuses the shared Next.js 16 (apps/v0) bundle inside an Electron 33.x shell with
   - `bmad:repo-health` req `{ repoPath }`; res `{ isValid, issues?: string[] }`; errors: `INVALID_REPO`, `PERMISSION_DENIED`.
   - `bmad:update-state` req `{}`; res `{ currentVersion, availableVersion?, lastCheckedAt, offlineLastKnown }`.
 - Renderer consumption: repository-store provides repo state; board/docs components consume typed loaders returning `content, exists, updatedAt, staleMs`.
-- File inputs: devDocs/bmm-workflow-status.yaml (status), devDocs/prd.md, devDocs/architecture.md, devDocs/docScan/*.md, devDocs/epics.md; all read locally, no remote fetch.
+- File inputs: devDocs/bmm-workflow-status.yaml (status), devDocs/prd.md, devDocs/architecture.md, devDocs/docScan/\*.md, devDocs/epics.md; all read locally, no remote fetch.
 - Update feed: autoUpdater channel; UI surfaces state only (no silent apply), requires signature-verified packages; offline shows cached state.
 - Clipboard: explicit user action triggers copy; sanitize and confirm success in <0.5s.
 
@@ -108,21 +110,21 @@ Reuses the shared Next.js 16 (apps/v0) bundle inside an Electron 33.x shell with
 ## Dependencies and Integrations
 
 - Root (CLI/core): Node >=20, dependencies include js-yaml 4.1.0, yaml 2.7.0, commander 14, fs-extra 11.3.0, semver 7.6.3.
-- UI (apps/v0): Next 16.0.3, React/React-DOM 19.2.0, Radix UI suite, Tailwind 4.1.9, date-fns 4.1.0, recharts 2.15.4, zod 3.25.76.
+- UI (apps/ui): Next 16.0.3, React/React-DOM 19.2.0, Radix UI suite, Tailwind 4.1.9, date-fns 4.1.0, recharts 2.15.4, zod 3.25.76.
 - Planned desktop shell (this epic): Electron 33.x, electron-builder 24.x, node-pty 1.0.x, xterm 5.x, electron-store 9.x; autoUpdater feed for delta updates (no manual GitHub downloads).
 - Clipboard/OS: system clipboard for copy; app data storage for caches/logs; no network except update feed.
-- Tooling: pnpm for apps/v0; npm for root; align to `.nvmrc` (Node 22) for UI build and Electron runtime consistency.
+- Tooling: pnpm for apps/ui; npm for root; align to `.nvmrc` (Node 22) for UI build and Electron runtime consistency.
 
 ## Acceptance Criteria (Authoritative)
 
-1) Repo selection and validation succeed with clear errors for missing/invalid BMAD artifacts; last-selected and recent repos persist across restarts.  
-2) Workflow board renders all phases/workflows from devDocs/bmm-workflow-status.yaml with agent roster, output paths, and staleness badge when >5m; load p50 <2s (p95 <3s) for ≤50 workflows.  
-3) Command/prompt copy+edit provides sanitized text and confirms success <0.5s; no command execution occurs in this epic.  
-4) Docs surface shows PRD, architecture, epics/docScan links with existence checks; missing docs show actionable remediation.  
-5) Offline/read-only mode blocks actions requiring writes/CLI, allows cached read with staleness label, and shows banner explaining state.  
-6) Auto-update surface shows current vs available version with defer/apply flow; offline shows last-known version; updates delivered via feed (no manual GitHub redownload).  
-7) Local action log records selections, refreshes, copy, update checks without PII/keys; bounded retention.  
-8) Electron shell runs Next.js bundle with contextIsolation on/nodeIntegration off; preload restricts FS to selected repo paths; CSP hardened.
+1. Repo selection and validation succeed with clear errors for missing/invalid BMAD artifacts; last-selected and recent repos persist across restarts.
+2. Workflow board renders all phases/workflows from devDocs/bmm-workflow-status.yaml with agent roster, output paths, and staleness badge when >5m; load p50 <2s (p95 <3s) for ≤50 workflows.
+3. Command/prompt copy+edit provides sanitized text and confirms success <0.5s; no command execution occurs in this epic.
+4. Docs surface shows PRD, architecture, epics/docScan links with existence checks; missing docs show actionable remediation.
+5. Offline/read-only mode blocks actions requiring writes/CLI, allows cached read with staleness label, and shows banner explaining state.
+6. Auto-update surface shows current vs available version with defer/apply flow; offline shows last-known version; updates delivered via feed (no manual GitHub redownload).
+7. Local action log records selections, refreshes, copy, update checks without PII/keys; bounded retention.
+8. Electron shell runs Next.js bundle with contextIsolation on/nodeIntegration off; preload restricts FS to selected repo paths; CSP hardened.
 
 ## Traceability Mapping (AC → Spec → Components → Tests)
 
@@ -146,6 +148,6 @@ Reuses the shared Next.js 16 (apps/v0) bundle inside an Electron 33.x shell with
 ## Test Strategy Summary
 
 - Unit: repository-store (selection, persistence, health flags), status/doc loaders (staleness calc, missing-file branches), command copy sanitizer.
-- Contract: typed IPC surface between preload and renderer; mocks for bmad:* channels; ensure path allowlist and error codes (MISSING_FILE, PERMISSION_DENIED, OFFLINE, PARSE_ERROR).
+- Contract: typed IPC surface between preload and renderer; mocks for bmad:\* channels; ensure path allowlist and error codes (MISSING_FILE, PERMISSION_DENIED, OFFLINE, PARSE_ERROR).
 - Integration/UI: render board with sample status file ≤50 workflows and assert p95 render <3s; offline banner/gating; docs existence states; update surface showing current/available/offline.
 - Manual/smoke: end-to-end on macOS with Electron shell—select repo, load board, copy command, view docs, view update state offline; verify no network beyond update feed.

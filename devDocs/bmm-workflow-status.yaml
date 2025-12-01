@@ -63,7 +63,7 @@ workflow_status:
         agent: "ux-designer"
         command: "create-design"
         condition: "has_ui"
-        note: "UI already built in apps/v0; adapt for Electron + VS Code surfaces"
+        note: "UI already built in apps/ui; adapt for Electron + VS Code surfaces"
 
   - phase: "Solutioning"
     workflows:
@@ -99,7 +99,7 @@ workflow_status:
         note: "Create sprint plan with stories"
 
 user_description: |
-  Building Mission Control UI for BMAD Method: take the existing Next.js app in apps/v0 and ship an Electron desktop app that matches it (progress tracking, in-app terminal, BYOK chat, copy/paste prompts). Also build a VS Code extension with the same UI and features minus the built-in terminal/BYOK chat, instead leveraging Copilot-backed chat and copy/paste commands.
+  Building Mission Control UI for BMAD Method: take the existing Next.js app in apps/ui and ship an Electron desktop app that matches it (progress tracking, in-app terminal, BYOK chat, copy/paste prompts). Also build a VS Code extension with the same UI and features minus the built-in terminal/BYOK chat, instead leveraging Copilot-backed chat and copy/paste commands.
 brainstorm_requested: false
 research_requested: false
 product_brief_requested: false

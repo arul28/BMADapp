@@ -12,7 +12,6 @@ export function WelcomeScreen({ onAddRepository }: WelcomeScreenProps) {
   return (
     <div className="h-full flex items-center justify-center bg-background p-8">
       <div className="max-w-2xl w-full space-y-8">
-        {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
@@ -25,28 +24,26 @@ export function WelcomeScreen({ onAddRepository }: WelcomeScreenProps) {
           </p>
         </div>
 
-        {/* Getting Started Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FolderOpen className="w-5 h-5" />
               Get Started
             </CardTitle>
-            <CardDescription>Add a repository or folder that uses the BMAD method to begin</CardDescription>
+            <CardDescription>Add a project folder that uses the BMAD method to begin</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button size="lg" className="w-full gap-2" onClick={onAddRepository}>
               <FolderOpen className="w-4 h-4" />
-              Add Repository
+              Add Project
               <ArrowRight className="w-4 h-4 ml-auto" />
             </Button>
             <p className="text-sm text-muted-foreground text-center">
-              Select a folder containing a BMAD project to load its workflow status
+              We&apos;ll auto-detect <code>bmm/config.yaml</code> and your output folder before loading Mission Control.
             </p>
           </CardContent>
         </Card>
 
-        {/* How It Works */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
@@ -67,7 +64,7 @@ export function WelcomeScreen({ onAddRepository }: WelcomeScreenProps) {
                   <FileCode2 className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-medium">2. Auto-Detect</h3>
-                <p className="text-sm text-muted-foreground">App reads workflow-status.yaml automatically</p>
+                <p className="text-sm text-muted-foreground">App reads config + workflow docs automatically</p>
               </div>
             </CardContent>
           </Card>
@@ -85,7 +82,6 @@ export function WelcomeScreen({ onAddRepository }: WelcomeScreenProps) {
           </Card>
         </div>
 
-        {/* Features */}
         <div className="space-y-3">
           <h3 className="font-medium text-center">What you can do</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">

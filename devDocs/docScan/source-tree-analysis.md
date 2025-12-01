@@ -3,14 +3,17 @@
 Repository type: Monorepo
 
 Parts
+
 - core: BMAD CLI/tooling, workflows, agents, schema code (`src/modules/**`, `tools/**`)
-- mission-control-ui: Next.js 16 app for Mission Control UI (`apps/v0/**`)
+- mission-control-ui: Next.js 16 app for Mission Control UI (`apps/ui/**`)
 
 Scope for scan
-- Included: `src/modules/bmm/**` (priority), other `src/modules/**` as context, `apps/v0/**`
+
+- Included: `src/modules/bmm/**` (priority), other `src/modules/**` as context, `apps/ui/**`
 - Excluded: `.bmad/**` (installer artifacts), `devDocs/**` (outputs)
 
 High-level layout
+
 ```
 apps/
   v0/                 Next.js 16 app-router UI (Mission Control)
@@ -48,5 +51,6 @@ devDocs/              (outputs; excluded)
 ```
 
 Notes
-- Mission Control UI (`apps/v0`) mirrors planned Electron/VS Code experiences; copy UI/theming/components from here.
+
+- Mission Control UI (`apps/ui`) mirrors planned Electron/VS Code experiences; copy UI/theming/components from here.
 - BMAD method logic, workflows, and agent definitions live in `src/modules/bmm`; treat as authoritative source for orchestration.
